@@ -5,110 +5,593 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Product Portfolio Executive Dashboard</title>
 
-<script src="html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
-    /* ... [YOUR EXISTING STYLES REMAIN UNCHANGED] ... */
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-    body { background: #f4f6f9; padding: 25px; }
-    .action-bar { text-align: center; margin-bottom: 25px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; }
-    .action-bar button, .action-bar select { background: #0052cc; color: white; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
-    .btn-mail { background: #e83e8c !important; }
-    .header { background: #0052cc; color: white; text-align: center; padding: 25px; border-radius: 15px; margin-bottom: 20px; }
-    .container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .team-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,.1); }
-    .status-box { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-radius: 10px; color: white; margin-bottom: 10px; }
-    .progress { background: #2196f3; } .completed { background: #28a745; } .blocker { background: #dc3545; } .notstarted { background: #ff9800; }
-    .editable { width: 80px; border: 1px solid rgba(255, 255, 255, 0.3); background: transparent; color: white; font-size: 20px; text-align: right; font-weight: bold; border-radius: 5px; padding: 2px 5px; }
-    .summary { margin-top: 25px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,.1); }
-    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-    .summary-card { padding: 20px; color: white; border-radius: 10px; text-align: center; }
-    .summary-output { width: 100%; min-height: 350px; margin-top: 15px; border: 1px solid #ccc; border-radius: 10px; padding: 20px; font-size: 15px; line-height: 1.6; background: #fafafa; color: #333; white-space: pre-wrap; }
-    .no-print { display: block; }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+        background: #f4f6f9;
+        padding: 25px;
+    }
+
+    /* Action Bar */
+    .action-bar {
+        text-align: center;
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .action-bar button, .action-bar select {
+        background: #0052cc;
+        color: white;
+        border: none;
+        padding: 12px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+
+    .action-bar select {
+        background: #fff;
+        color: #333;
+        border: 2px solid #0052cc;
+    }
+
+    .action-bar button:hover {
+        background: #003f99;
+    }
+    
+    .btn-mail {
+        background: #e83e8c !important; 
+    }
+    .btn-mail:hover {
+        background: #c2276e !important;
+    }
+
+    /* Styling for the Image Info Panel */
+    .image-info-panel {
+        background: #fff;
+        border: 2px solid #28a745;
+        border-radius: 10px;
+        padding: 15px;
+        max-width: 500px;
+        margin: 0 auto 20px auto;
+        text-align: center;
+        display: none; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .image-info-panel h4 {
+        color: #28a745;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    /* Header styling */
+    .header {
+        background: #0052cc;
+        color: white;
+        text-align: center;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
+
+    .header h1 {
+        font-size: 32px;
+    }
+
+    .header p {
+        margin-top: 10px;
+        font-size: 16px;
+    }
+
+    /* FORCED 1 ROW FOR CARDS */
+    .container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Forces exactly 3 columns on 1 row */
+        gap: 20px;
+    }
+
+    .team-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,.1);
+    }
+
+    .team-name {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .status-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+        border-radius: 10px;
+        color: white;
+        margin-bottom: 10px;
+    }
+
+    .progress { background: #2196f3; }
+    .completed { background: #28a745; }
+    .blocker { background: #dc3545; }
+    .notstarted { background: #ff9800; }
+
+    .editable {
+        width: 80px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: transparent;
+        color: white;
+        font-size: 20px;
+        text-align: right;
+        font-weight: bold;
+        border-radius: 5px;
+        padding: 2px 5px;
+    }
+    
+    .editable:focus {
+        outline: none;
+        border: 1px solid white;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .summary {
+        margin-top: 25px;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,.1);
+    }
+
+    .summary h2 {
+        margin-bottom: 15px;
+        color: #0052cc;
+    }
+
+    /* FORCED 1 ROW FOR OVERALL TOTALS */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* Forces exactly 4 columns on 1 row */
+        gap: 15px;
+    }
+
+    .summary-card {
+        padding: 20px;
+        color: white;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .summary-card h3 {
+        font-size: 32px;
+    }
+
+    .summary-output {
+        width: 100%;
+        min-height: 350px;
+        margin-top: 15px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        font-size: 15px;
+        line-height: 1.6;
+        background: #fafafa;
+        color: #333;
+        white-space: pre-wrap;
+    }
+
+    .summary-output:focus {
+        outline: 2px solid #0052cc;
+        background: #fff;
+    }
+
+    .no-print {
+        display: block;
+    }
 </style>
 </head>
 <body>
 
 <div id="dashboard">
+
     <div class="action-bar no-print">
         <button onclick="updateDashboard()">🔄 Update Dashboard</button>
         <button class="btn-mail" onclick="copyForMailbox()">📧 Copy for Mail Box</button>
         <button onclick="copyRichText()">📋 Copy Rich Text</button>
         <button onclick="copyPlainText()">📄 Copy Plain Text</button>
+        
         <select id="imageScale">
             <option value="1">Standard (1x)</option>
             <option value="2" selected>High Quality (2x)</option>
+            <option value="3">Ultra HD (3x)</option>
         </select>
+        
         <button onclick="downloadPNG()">📸 Download PNG</button>
     </div>
 
+    <div id="imageInfoPanel" class="image-info-panel no-print">
+        <h4>✅ Image Generated Successfully</h4>
+        <p><strong>Dimensions:</strong> <span id="imgDimensions"></span> Pixels</p>
+        <p><strong>Estimated Size:</strong> <span id="imgSize"></span> KB</p>
+    </div>
+
     <div id="capture-area">
+        
         <div class="header">
             <h1>📊 Product Portfolio Weekly Status Report</h1>
+            <p>🏆 Certification | 🔄 Switch | 🏪 Instore</p>
         </div>
+
         <div class="container">
+            <div class="team-card">
+                <div class="team-name" style="color: #0052cc;">🏆 Certification</div>
+                <div class="status-box progress">
+                    <span>🔵 In Progress</span>
+                    <input class="editable cert-progress" type="number" value="31">
+                </div>
+                <div class="status-box completed">
+                    <span>✅ Completed</span>
+                    <input class="editable cert-completed" type="number" value="29">
+                </div>
+                <div class="status-box blocker">
+                    <span>🚧 Blocked / Stuck</span>
+                    <input class="editable cert-blocked" type="number" value="6">
+                </div>
+                <div class="status-box notstarted">
+                    <span>⏳ Yet To Start</span>
+                    <input class="editable cert-notstarted" type="number" value="13">
+                </div>
             </div>
+
+            <div class="team-card">
+                <div class="team-name" style="color: #6f42c1;">🔄 Switch</div>
+                <div class="status-box progress">
+                    <span>🔵 In Progress</span>
+                    <input class="editable switch-progress" type="number" value="18">
+                </div>
+                <div class="status-box completed">
+                    <span>✅ Completed</span>
+                    <input class="editable switch-completed" type="number" value="22">
+                </div>
+                <div class="status-box blocker">
+                    <span>🚧 Blocked / Stuck</span>
+                    <input class="editable switch-blocked" type="number" value="2">
+                </div>
+                <div class="status-box notstarted">
+                    <span>⏳ Yet To Start</span>
+                    <input class="editable switch-notstarted" type="number" value="4">
+                </div>
+            </div>
+
+            <div class="team-card">
+                <div class="team-name" style="color: #17a2b8;">🏪 Instore</div>
+                <div class="status-box progress">
+                    <span>🔵 In Progress</span>
+                    <input class="editable instore-progress" type="number" value="15">
+                </div>
+                <div class="status-box completed">
+                    <span>✅ Completed</span>
+                    <input class="editable instore-completed" type="number" value="20">
+                </div>
+                <div class="status-box blocker">
+                    <span>🚧 Blocked / Stuck</span>
+                    <input class="editable instore-blocked" type="number" value="3">
+                </div>
+                <div class="status-box notstarted">
+                    <span>⏳ Yet To Start</span>
+                    <input class="editable instore-notstarted" type="number" value="7">
+                </div>
+            </div>
+        </div>
+
         <div class="summary">
             <h2>📈 Overall Portfolio Summary</h2>
             <div class="summary-grid">
-                <div class="summary-card progress"><h3 id="totalProgress">0</h3><p>In Progress</p></div>
-                <div class="summary-card completed"><h3 id="totalCompleted">0</h3><p>Completed</p></div>
-                <div class="summary-card blocker"><h3 id="totalBlocked">0</h3><p>Blocked</p></div>
-                <div class="summary-card notstarted"><h3 id="totalNotStarted">0</h3><p>Yet To Start</p></div>
+                <div class="summary-card progress">
+                    <h3 id="totalProgress">0</h3>
+                    <p>In Progress</p>
+                </div>
+                <div class="summary-card completed">
+                    <h3 id="totalCompleted">0</h3>
+                    <p>Completed</p>
+                </div>
+                <div class="summary-card blocker">
+                    <h3 id="totalBlocked">0</h3>
+                    <p>Blocked</p>
+                </div>
+                <div class="summary-card notstarted">
+                    <h3 id="totalNotStarted">0</h3>
+                    <p>Yet To Start</p>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="summary no-print">
         <h2>📝 Executive Team Summary Output</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 10px;"><i>*This summary updates automatically. You can also manually type inside this box to add extra notes before copying.</i></p>
+        
         <div id="summaryOutput" class="summary-output" contenteditable="true"></div>
     </div>
+
 </div>
 
 <script>
-    // MODERNIZED JAVASCRIPT
-    async function copyRichText() {
-        const div = document.getElementById('summaryOutput');
+    window.onload = function() {
+        updateDashboard();
+    };
+
+    // Updated generation string with explicit spacing, line-heights, and horizontal separators
+    function generateNarrative(teamName, emoji, themeColor, c, p, b, n) {
+        return `
+        <div style="margin-bottom: 25px;">
+            <h3 style="color: ${themeColor}; margin-top: 15px; margin-bottom: 5px; font-size: 20px;">${emoji} ${teamName} Portfolio</h3>
+            <hr style="border: 0; border-top: 2px solid #eaeaea; margin-bottom: 15px;">
+            
+            <p style="margin: 0 0 10px 0; line-height: 1.5;"><b style="color: #28a745;">✅ Completed:</b> A total of <b>${c}</b> projects have been successfully completed and closed. These have fulfilled all requirements and are marked as done, contributing significantly to overall portfolio progress.</p>
+            
+            <p style="margin: 0 0 10px 0; line-height: 1.5;"><b style="color: #2196f3;">🔄 Active / In Progress:</b> There are currently <b>${p}</b> projects actively in progress. These are undergoing various stages of development, integration, and validation. The majority remain aligned with delivery commitments.</p>
+            
+            <p style="margin: 0 0 10px 0; line-height: 1.5;"><b style="color: #ff9800;">⏳ Yet to Start:</b> A total of <b>${n}</b> projects are currently in the planned backlog. These initiatives are scheduled for future implementation based on priority and resource availability.</p>
+            
+            <p style="margin: 0 0 10px 0; line-height: 1.5;"><b style="color: #dc3545;">🚧 Blocked / Stuck:</b> There are currently <b>${b}</b> projects identified as blocked. These require focused attention and resolution of dependencies or external constraints.</p>
+        </div>
+        `;
+    }
+
+    function updateDashboard() {
+        document.getElementById('imageInfoPanel').style.display = 'none';
+
+        const certP = parseInt(document.querySelector('.cert-progress').value) || 0;
+        const certC = parseInt(document.querySelector('.cert-completed').value) || 0;
+        const certB = parseInt(document.querySelector('.cert-blocked').value) || 0;
+        const certN = parseInt(document.querySelector('.cert-notstarted').value) || 0;
+
+        const switchP = parseInt(document.querySelector('.switch-progress').value) || 0;
+        const switchC = parseInt(document.querySelector('.switch-completed').value) || 0;
+        const switchB = parseInt(document.querySelector('.switch-blocked').value) || 0;
+        const switchN = parseInt(document.querySelector('.switch-notstarted').value) || 0;
+
+        const instoreP = parseInt(document.querySelector('.instore-progress').value) || 0;
+        const instoreC = parseInt(document.querySelector('.instore-completed').value) || 0;
+        const instoreB = parseInt(document.querySelector('.instore-blocked').value) || 0;
+        const instoreN = parseInt(document.querySelector('.instore-notstarted').value) || 0;
+
+        const totalP = certP + switchP + instoreP;
+        const totalC = certC + switchC + instoreC;
+        const totalB = certB + switchB + instoreB;
+        const totalN = certN + switchN + instoreN;
+
+        document.getElementById('totalProgress').innerText = totalP;
+        document.getElementById('totalCompleted').innerText = totalC;
+        document.getElementById('totalBlocked').innerText = totalB;
+        document.getElementById('totalNotStarted').innerText = totalN;
+
+        let htmlSummary = `<h2 style="color: #333; margin-bottom: 15px;">📊 Weekly Executive Summary</h2>`;
+        htmlSummary += generateNarrative('Certification', '🏆', '#0052cc', certC, certP, certB, certN);
+        htmlSummary += generateNarrative('Switch', '🔄', '#6f42c1', switchC, switchP, switchB, switchN);
+        htmlSummary += generateNarrative('Instore', '🏪', '#17a2b8', instoreC, instoreP, instoreB, instoreN);
+        
+        // Total summary block layout
+        htmlSummary += `
+        <div style="margin-top: 30px;">
+            <hr style="border: 0; border-top: 3px solid #ccc; margin-bottom: 15px;">
+            <h3 style="color: #333; margin: 0 0 15px 0; font-size: 20px;">📈 Overall Portfolio Snapshot</h3>
+            <ul style="list-style-type: none; padding: 0; margin: 0; font-size: 16px;">
+                <li style="margin-bottom: 8px;"><b style="color: #2196f3;">🔵 Total In Progress:</b> ${totalP}</li>
+                <li style="margin-bottom: 8px;"><b style="color: #28a745;">✅ Total Completed:</b> ${totalC}</li>
+                <li style="margin-bottom: 8px;"><b style="color: #dc3545;">🚧 Total Blocked:</b> ${totalB}</li>
+                <li style="margin-bottom: 8px;"><b style="color: #ff9800;">⏳ Total Yet To Start:</b> ${totalN}</li>
+            </ul>
+        </div>`;
+        
+        document.getElementById('summaryOutput').innerHTML = htmlSummary;
+    }
+
+    function makeEmailRow(label, value, bgColor) {
+        return `
+        <div style="background-color: ${bgColor}; padding: 10px 15px; border-radius: 8px; margin-bottom: 8px;">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="left" style="color: white; font-size: 15px; font-family: sans-serif;">${label}</td>
+                    <td align="right" style="color: white; font-size: 18px; font-weight: bold; font-family: sans-serif;">${value}</td>
+                </tr>
+            </table>
+        </div>`;
+    }
+
+    function copyForMailbox() {
+        updateDashboard(); 
+
+        const certP = document.querySelector('.cert-progress').value || 0;
+        const certC = document.querySelector('.cert-completed').value || 0;
+        const certB = document.querySelector('.cert-blocked').value || 0;
+        const certN = document.querySelector('.cert-notstarted').value || 0;
+
+        const switchP = document.querySelector('.switch-progress').value || 0;
+        const switchC = document.querySelector('.switch-completed').value || 0;
+        const switchB = document.querySelector('.switch-blocked').value || 0;
+        const switchN = document.querySelector('.switch-notstarted').value || 0;
+
+        const instoreP = document.querySelector('.instore-progress').value || 0;
+        const instoreC = document.querySelector('.instore-completed').value || 0;
+        const instoreB = document.querySelector('.instore-blocked').value || 0;
+        const instoreN = document.querySelector('.instore-notstarted').value || 0;
+
+        const totalP = document.getElementById('totalProgress').innerText;
+        const totalC = document.getElementById('totalCompleted').innerText;
+        const totalB = document.getElementById('totalBlocked').innerText;
+        const totalN = document.getElementById('totalNotStarted').innerText;
+
+        // SINGLE ROW Email Safe Grid for 3 Teams
+        const emailSafeHTML = `
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; width: 100%; max-width: 1000px; color: #333;">
+            <div style="background-color: #0052cc; text-align: center; padding: 25px; border-radius: 12px; margin-bottom: 25px;">
+                <h1 style="margin: 0; font-size: 28px; color: white;">📊 Product Portfolio Weekly Status Report</h1>
+                <p style="margin: 10px 0 0 0; font-size: 16px; color: white;">🏆 Certification &nbsp;|&nbsp; 🔄 Switch &nbsp;|&nbsp; 🏪 Instore</p>
+            </div>
+
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 25px;">
+                <tr>
+                    <td width="33.33%" valign="top" style="padding-right: 10px;">
+                        <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: #f9f9f9;">
+                            <h3 style="text-align: center; color: #0052cc; margin-top: 0; margin-bottom: 15px;">🏆 Certification</h3>
+                            ${makeEmailRow('🔵 In Progress', certP, '#2196f3')}
+                            ${makeEmailRow('✅ Completed', certC, '#28a745')}
+                            ${makeEmailRow('🚧 Blocked', certB, '#dc3545')}
+                            ${makeEmailRow('⏳ To Start', certN, '#ff9800')}
+                        </div>
+                    </td>
+                    <td width="33.33%" valign="top" style="padding-left: 5px; padding-right: 5px;">
+                        <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: #f9f9f9;">
+                            <h3 style="text-align: center; color: #6f42c1; margin-top: 0; margin-bottom: 15px;">🔄 Switch</h3>
+                            ${makeEmailRow('🔵 In Progress', switchP, '#2196f3')}
+                            ${makeEmailRow('✅ Completed', switchC, '#28a745')}
+                            ${makeEmailRow('🚧 Blocked', switchB, '#dc3545')}
+                            ${makeEmailRow('⏳ To Start', switchN, '#ff9800')}
+                        </div>
+                    </td>
+                    <td width="33.33%" valign="top" style="padding-left: 10px;">
+                        <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: #f9f9f9;">
+                            <h3 style="text-align: center; color: #17a2b8; margin-top: 0; margin-bottom: 15px;">🏪 Instore</h3>
+                            ${makeEmailRow('🔵 In Progress', instoreP, '#2196f3')}
+                            ${makeEmailRow('✅ Completed', instoreC, '#28a745')}
+                            ${makeEmailRow('🚧 Blocked', instoreB, '#dc3545')}
+                            ${makeEmailRow('⏳ To Start', instoreN, '#ff9800')}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <h2 style="color: #0052cc; margin-top: 0px; margin-bottom: 15px;">📈 Overall Portfolio Summary</h2>
+            <table width="100%" border="0" cellspacing="10" cellpadding="15" style="border: 1px solid #ddd; border-radius: 12px; margin-bottom: 30px;">
+                <tr>
+                    <td align="center" style="background-color: #2196f3; border-radius: 8px; width: 25%;">
+                        <h3 style="margin: 0; font-size: 26px; color: white;">${totalP}</h3>
+                        <p style="margin: 5px 0 0 0; color: white;">In Progress</p>
+                    </td>
+                    <td align="center" style="background-color: #28a745; border-radius: 8px; width: 25%;">
+                        <h3 style="margin: 0; font-size: 26px; color: white;">${totalC}</h3>
+                        <p style="margin: 5px 0 0 0; color: white;">Completed</p>
+                    </td>
+                    <td align="center" style="background-color: #dc3545; border-radius: 8px; width: 25%;">
+                        <h3 style="margin: 0; font-size: 26px; color: white;">${totalB}</h3>
+                        <p style="margin: 5px 0 0 0; color: white;">Blocked</p>
+                    </td>
+                    <td align="center" style="background-color: #ff9800; border-radius: 8px; width: 25%;">
+                        <h3 style="margin: 0; font-size: 26px; color: white;">${totalN}</h3>
+                        <p style="margin: 5px 0 0 0; color: white;">Yet To Start</p>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="border-top: 2px solid #ddd; padding-top: 25px; color: #333;">
+                ${document.getElementById('summaryOutput').innerHTML}
+            </div>
+        </div>
+        `;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
+        tempDiv.innerHTML = emailSafeHTML;
+        document.body.appendChild(tempDiv);
+
+        const range = document.createRange();
+        range.selectNodeContents(tempDiv);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
         try {
-            const blob = new Blob([div.innerHTML], { type: 'text/html' });
-            const data = [new ClipboardItem({ 'text/html': blob })];
-            await navigator.clipboard.write(data);
-            alert("✅ Rich text summary copied!");
+            document.execCommand('copy');
+            alert("📧 Formatted specifically for Email! You can now paste directly into Outlook/Gmail.");
         } catch (err) {
-            alert("❌ Clipboard access denied or unsupported.");
+            console.error('Failed to copy text: ', err);
+            alert("❌ Failed to copy.");
         }
+
+        selection.removeAllRanges();
+        document.body.removeChild(tempDiv);
     }
 
-    async function copyPlainText() {
-        const text = document.getElementById('summaryOutput').innerText;
+    function copyRichText() {
+        const summaryDiv = document.getElementById('summaryOutput');
+        const range = document.createRange();
+        range.selectNodeContents(summaryDiv);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
         try {
-            await navigator.clipboard.writeText(text);
-            alert("📄 Plain text summary copied!");
-        } catch (err) { alert("❌ Copy failed."); }
+            document.execCommand('copy');
+            alert("✅ Rich text summary copied to clipboard!");
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+        }
+        selection.removeAllRanges();
     }
 
-    function downloadPNG() {
-        if (typeof html2canvas === 'undefined') {
-            alert("Error: html2canvas.min.js not found in local folder!");
-            return;
-        }
-
-        const noPrint = document.querySelectorAll('.no-print');
-        noPrint.forEach(el => el.style.display = 'none');
-
-        html2canvas(document.getElementById('capture-area'), {
-            backgroundColor: '#f4f6f9',
-            scale: parseFloat(document.getElementById('imageScale').value)
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `Portfolio_Dashboard_${new Date().toISOString().slice(0,10)}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            noPrint.forEach(el => el.style.display = '');
+    function copyPlainText() {
+        const summaryDiv = document.getElementById('summaryOutput');
+        const plainText = summaryDiv.innerText;
+        navigator.clipboard.writeText(plainText).then(() => {
+            alert("📄 Plain text summary copied to clipboard!");
         });
     }
 
-    // [KEEP YOUR EXISTING updateDashboard() AND generateNarrative() FUNCTIONS HERE]
+    function downloadPNG() {
+        const noPrintElements = document.querySelectorAll('.no-print');
+        noPrintElements.forEach(el => el.style.display = 'none');
+
+        const targetElement = document.getElementById('capture-area');
+        
+        const selectedScale = parseFloat(document.getElementById('imageScale').value);
+
+        html2canvas(targetElement, { 
+            backgroundColor: '#f4f6f9',
+            scale: selectedScale 
+        }).then(canvas => {
+            const width = canvas.width;
+            const height = canvas.height;
+            document.getElementById('imgDimensions').innerText = `${width} x ${height}`;
+
+            const dataUrl = canvas.toDataURL('image/png');
+            const headLength = 'data:image/png;base64,'.length;
+            const fileSizeInBytes = Math.round((dataUrl.length - headLength) * 3 / 4);
+            const fileSizeInKB = (fileSizeInBytes / 1024).toFixed(2);
+            document.getElementById('imgSize').innerText = fileSizeInKB;
+
+            document.getElementById('imageInfoPanel').style.display = 'block';
+
+            const link = document.createElement('a');
+            link.download = `Portfolio_Dashboard_${new Date().toISOString().slice(0,10)}.png`;
+            link.href = dataUrl;
+            link.click();
+
+            noPrintElements.forEach(el => el.style.display = '');
+        });
+    }
 </script>
+
 </body>
 </html>
